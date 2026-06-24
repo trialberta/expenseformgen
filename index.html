@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Triathlon Alberta Invoice/Expense Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ta-blue: #1B4F9C;
@@ -337,6 +340,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 28px;
     margin-top: 36px;
+    align-items: end;
   }
   .sign-line {
     border-top: 1px solid #1f2733;
@@ -345,6 +349,109 @@
     color: var(--ta-grey-text);
     text-transform: uppercase;
     letter-spacing: 0.03em;
+  }
+
+  /* Signature capture widget (on-screen only; print uses a baked-in image instead) */
+  .signature-block {
+    border: 1px solid var(--ta-grey-border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    background: #fafbfc;
+  }
+  .sig-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .sig-tab {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: 1px solid var(--ta-grey-border);
+    background: var(--ta-white);
+    color: var(--ta-grey-text);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .sig-tab.active {
+    background: var(--ta-blue);
+    color: white;
+    border-color: var(--ta-blue);
+  }
+  .sig-panel { margin-bottom: 10px; }
+  .sig-type-input {
+    width: 100%;
+    border: 1px solid var(--ta-grey-border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .sig-type-input:focus {
+    outline: none;
+    border-color: var(--ta-blue);
+    box-shadow: 0 0 0 3px rgba(27,79,156,0.12);
+  }
+  .sig-type-preview {
+    font-family: 'Caveat', 'Brush Script MT', cursive;
+    font-size: 38px;
+    font-weight: 700;
+    border-bottom: 1px solid #1f2733;
+    padding: 6px 4px 8px 4px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    color: var(--ta-grey-text);
+  }
+  .sig-type-preview.has-value { color: #1f2733; }
+  .sig-draw-canvas {
+    width: 100%;
+    height: 150px;
+    border: 1px solid var(--ta-grey-border);
+    border-radius: var(--radius);
+    background: var(--ta-white);
+    touch-action: none;
+    cursor: crosshair;
+    display: block;
+  }
+  .sig-clear-btn { margin-top: 8px; font-size: 12px; padding: 6px 12px; }
+  .sig-upload-preview-wrap {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .sig-upload-preview {
+    max-height: 70px;
+    max-width: 220px;
+    border: 1px solid var(--ta-grey-border);
+    border-radius: 4px;
+    background: white;
+    padding: 4px;
+  }
+  .sig-date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--ta-grey-border);
+  }
+  .sig-date-row label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ta-grey-text);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .sig-date-row input[type="date"] {
+    border: 1px solid var(--ta-grey-border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: inherit;
   }
 
   .footer-note {
@@ -496,7 +603,39 @@
   </div>
 
   <div class="sign-grid">
-    <div class="sign-line">Submitter Signature &amp; Date</div>
+    <div class="signature-block no-print">
+      <div class="section-label">Submitter Signature &amp; Date</div>
+
+      <div class="sig-tabs">
+        <button type="button" class="sig-tab active" data-mode="type">Type</button>
+        <button type="button" class="sig-tab" data-mode="draw">Draw</button>
+        <button type="button" class="sig-tab" data-mode="upload">Upload</button>
+      </div>
+
+      <div class="sig-panel" id="sigPanelType">
+        <input type="text" id="sigTypeInput" class="sig-type-input" placeholder="Type your name">
+        <div class="sig-type-preview" id="sigTypePreview">Your signature preview</div>
+      </div>
+
+      <div class="sig-panel" id="sigPanelDraw" style="display:none;">
+        <canvas id="sigDrawCanvas" class="sig-draw-canvas" width="500" height="150"></canvas>
+        <button type="button" class="btn btn-ghost sig-clear-btn" id="sigClearDraw">Clear</button>
+      </div>
+
+      <div class="sig-panel" id="sigPanelUpload" style="display:none;">
+        <input type="file" id="sigUploadInput" accept="image/*">
+        <div class="sig-upload-preview-wrap" id="sigUploadPreviewWrap" style="display:none;">
+          <img id="sigUploadPreview" class="sig-upload-preview" alt="Uploaded signature preview">
+          <button type="button" class="btn btn-ghost sig-clear-btn" id="sigClearUpload">Remove</button>
+        </div>
+      </div>
+
+      <div class="sig-date-row">
+        <label for="sigDate">Date</label>
+        <input type="date" id="sigDate">
+      </div>
+    </div>
+
     <div class="sign-line">Approved By &amp; Date (Triathlon Alberta)</div>
   </div>
 
@@ -955,6 +1094,159 @@
   etransferEmailInput.addEventListener('input', () => { etransferEmailInput.dataset.touched = 'true'; });
   updatePaymentMethodMode();
 
+  // --- Signature capture widget (Type / Draw / Upload) ---------------------
+  // All three modes converge on a single PNG data URI representing the
+  // submitter's signature. That data URI is what gets embedded into the
+  // printed/PDF output — the interactive widget itself is screen-only
+  // (.no-print), so printing never depends on canvas/font timing in a
+  // separate tab.
+  let sigMode = 'type';
+  let sigUploadDataUri = '';
+  let sigDrawHasContent = false;
+
+  const sigTabs = document.querySelectorAll('.sig-tab');
+  const sigPanelType = document.getElementById('sigPanelType');
+  const sigPanelDraw = document.getElementById('sigPanelDraw');
+  const sigPanelUpload = document.getElementById('sigPanelUpload');
+  const sigTypeInput = document.getElementById('sigTypeInput');
+  const sigTypePreview = document.getElementById('sigTypePreview');
+  const sigDrawCanvas = document.getElementById('sigDrawCanvas');
+  const sigUploadInput = document.getElementById('sigUploadInput');
+  const sigUploadPreviewWrap = document.getElementById('sigUploadPreviewWrap');
+  const sigUploadPreview = document.getElementById('sigUploadPreview');
+
+  function switchSigMode(mode) {
+    sigMode = mode;
+    sigTabs.forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    sigPanelType.style.display = mode === 'type' ? 'block' : 'none';
+    sigPanelDraw.style.display = mode === 'draw' ? 'block' : 'none';
+    sigPanelUpload.style.display = mode === 'upload' ? 'block' : 'none';
+  }
+  sigTabs.forEach(tab => {
+    tab.addEventListener('click', () => switchSigMode(tab.dataset.mode));
+  });
+
+  // Type mode: live cursive preview as the person types
+  sigTypeInput.addEventListener('input', () => {
+    const val = sigTypeInput.value;
+    sigTypePreview.textContent = val || 'Your signature preview';
+    sigTypePreview.classList.toggle('has-value', !!val);
+  });
+
+  // Draw mode: canvas with mouse + touch/pointer support
+  const sigCtx = sigDrawCanvas.getContext('2d');
+  sigCtx.strokeStyle = '#1f2733';
+  sigCtx.lineWidth = 2.2;
+  sigCtx.lineJoin = 'round';
+  sigCtx.lineCap = 'round';
+  let sigDrawing = false;
+  let sigLastX = 0, sigLastY = 0;
+
+  function sigCanvasPoint(evt) {
+    const rect = sigDrawCanvas.getBoundingClientRect();
+    const scaleX = sigDrawCanvas.width / rect.width;
+    const scaleY = sigDrawCanvas.height / rect.height;
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+  function sigStartDraw(evt) {
+    evt.preventDefault();
+    sigDrawing = true;
+    const p = sigCanvasPoint(evt);
+    sigLastX = p.x; sigLastY = p.y;
+  }
+  function sigMoveDraw(evt) {
+    if (!sigDrawing) return;
+    evt.preventDefault();
+    const p = sigCanvasPoint(evt);
+    sigCtx.beginPath();
+    sigCtx.moveTo(sigLastX, sigLastY);
+    sigCtx.lineTo(p.x, p.y);
+    sigCtx.stroke();
+    sigLastX = p.x; sigLastY = p.y;
+    sigDrawHasContent = true;
+  }
+  function sigEndDraw() { sigDrawing = false; }
+
+  sigDrawCanvas.addEventListener('mousedown', sigStartDraw);
+  sigDrawCanvas.addEventListener('mousemove', sigMoveDraw);
+  window.addEventListener('mouseup', sigEndDraw);
+  sigDrawCanvas.addEventListener('touchstart', sigStartDraw, { passive: false });
+  sigDrawCanvas.addEventListener('touchmove', sigMoveDraw, { passive: false });
+  sigDrawCanvas.addEventListener('touchend', sigEndDraw);
+
+  document.getElementById('sigClearDraw').addEventListener('click', () => {
+    sigCtx.clearRect(0, 0, sigDrawCanvas.width, sigDrawCanvas.height);
+    sigDrawHasContent = false;
+  });
+
+  // Upload mode
+  sigUploadInput.addEventListener('change', () => {
+    const file = sigUploadInput.files && sigUploadInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      sigUploadDataUri = reader.result;
+      sigUploadPreview.src = sigUploadDataUri;
+      sigUploadPreviewWrap.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('sigClearUpload').addEventListener('click', () => {
+    sigUploadDataUri = '';
+    sigUploadInput.value = '';
+    sigUploadPreviewWrap.style.display = 'none';
+  });
+
+  // Renders the typed name onto an offscreen canvas using the cursive font,
+  // so the result is a flat image rather than text that depends on the
+  // font being loaded in whichever document displays it later.
+  function renderTypedSignatureToDataUri(name) {
+    if (!name || !name.trim()) return '';
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 160;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1f2733';
+    ctx.textBaseline = 'middle';
+    ctx.font = "62px 'Caveat', 'Brush Script MT', cursive";
+    // Shrink to fit if the name is long enough to overflow the canvas width
+    let fontSize = 62;
+    while (ctx.measureText(name).width > canvas.width - 40 && fontSize > 24) {
+      fontSize -= 2;
+      ctx.font = `${fontSize}px 'Caveat', 'Brush Script MT', cursive`;
+    }
+    ctx.fillText(name, 20, canvas.height / 2);
+    return canvas.toDataURL('image/png');
+  }
+
+  // Returns the current signature as a PNG data URI, regardless of which
+  // mode (type/draw/upload) is active. Returns '' if nothing was provided.
+  function getSignatureDataUri() {
+    if (sigMode === 'type') {
+      return renderTypedSignatureToDataUri(sigTypeInput.value);
+    } else if (sigMode === 'draw') {
+      return sigDrawHasContent ? sigDrawCanvas.toDataURL('image/png') : '';
+    } else if (sigMode === 'upload') {
+      return sigUploadDataUri || '';
+    }
+    return '';
+  }
+
+  function resetSignatureWidget() {
+    sigTypeInput.value = '';
+    sigTypePreview.textContent = 'Your signature preview';
+    sigTypePreview.classList.remove('has-value');
+    sigCtx.clearRect(0, 0, sigDrawCanvas.width, sigDrawCanvas.height);
+    sigDrawHasContent = false;
+    sigUploadDataUri = '';
+    sigUploadInput.value = '';
+    sigUploadPreviewWrap.style.display = 'none';
+    document.getElementById('sigDate').value = '';
+    switchSigMode('type');
+  }
+
   // Gather the current form state into plain data so we can build a
   // dedicated print layout (one line item per row, landscape) rather than
   // reusing the on-screen card layout.
@@ -995,7 +1287,9 @@
       lines,
       subtotal: document.getElementById('totalAmount').textContent,
       gstTotal: document.getElementById('totalGst').textContent,
-      finalTotal: document.getElementById('totalFinal').textContent
+      finalTotal: document.getElementById('totalFinal').textContent,
+      signatureDataUri: getSignatureDataUri(),
+      signatureDate: document.getElementById('sigDate').value || ''
     };
   }
 
@@ -1125,7 +1419,9 @@
   .totals-row.grand span:first-child { color: white; }
   .notes-box { font-size: 12px; margin-bottom: 18px; }
   .notes-box .body { white-space: pre-wrap; border: 1px solid #d7dde5; padding: 8px 10px; min-height: 30px; margin-top: 4px; }
-  .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 24px; }
+  .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 24px; align-items: end; }
+  .sign-cell { display: flex; flex-direction: column; }
+  .sig-print-img { max-height: 50px; max-width: 100%; object-fit: contain; align-self: flex-start; margin-bottom: 2px; }
   .sign-line { border-top: 1px solid #1f2733; padding-top: 5px; font-size: 10px; color: #5a6472; text-transform: uppercase; letter-spacing: 0.03em; }
   .footer-note { margin-top: 18px; font-size: 10px; color: #5a6472; text-align: center; border-top: 1px solid #d7dde5; padding-top: 10px; }
 </style>
@@ -1193,8 +1489,13 @@
   </div>
 
   <div class="sign-grid">
-    <div class="sign-line">Submitter Signature &amp; Date</div>
-    <div class="sign-line">Approved By &amp; Date (Triathlon Alberta)</div>
+    <div class="sign-cell">
+      ${data.signatureDataUri ? '<img src="' + data.signatureDataUri + '" class="sig-print-img" alt="Submitter signature">' : ''}
+      <div class="sign-line">Submitter Signature${data.signatureDate ? ' — ' + escapeHtml(data.signatureDate) : ' & Date'}</div>
+    </div>
+    <div class="sign-cell">
+      <div class="sign-line" style="margin-top:auto;">Approved By &amp; Date (Triathlon Alberta)</div>
+    </div>
   </div>
 
   <div class="footer-note">Triathlon Alberta — Invoice/Expense Form Submission. Please submit completed forms to finance@triathlonalberta.ca.</div>
@@ -1255,6 +1556,7 @@
     lineCount = 0;
     addLine();
     document.getElementById('formDate').valueAsDate = new Date();
+    resetSignatureWidget();
   }
 
   document.getElementById('btnNew').addEventListener('click', handleNewForm);
